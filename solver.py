@@ -7,8 +7,7 @@ from utils import dbg
 
 
 class SugarRush(Solver):
-    """
-    Quality-of-life wrapper for pysat.solvers.Solver
+    """Quality-of-life wrapper for pysat.solvers.Solver
     """
     def __init__(self, name="glucose4"):
         super().__init__(name=name)
@@ -20,15 +19,8 @@ class SugarRush(Solver):
     Basics
     """
     def var(self):
-        #self.top_id += 1
-        '''
-        if self.nof_vars() == -1:
-            id_num = 1
-        else:
-            id_num = self.nof_vars() + 1
-        self.add([[id_num, -id_num]])
-        return id_num
-        '''
+        """
+        """
         self.lits.add(self.top_id() + 1)
         return self.top_id()
 
@@ -36,9 +28,15 @@ class SugarRush(Solver):
     #    return self.append_formula(cnf)        
 
     def add(self, cnf):
-        self.append_formula(cnf)   
+        """Should it warn if one tries to add 
+        clauses with variables that are not in self.lits?
+        """
+        self.append_formula(cnf)
 
     def add_lits(self, lits):
+        """Should it warn if one tries to add lits 
+        which are already in self.lits?
+        """
         for lit in lits:
             self.lits.add(abs(lit))
 
@@ -49,6 +47,8 @@ class SugarRush(Solver):
         return max(self.lits)
 
     def _init_var2val(self):
+        """When is this necessary?
+        """
         for var, val in enumerate(self.get_model()):
             self.var2val[var+1] = (val > 0) * 1 # 1-indexed
 

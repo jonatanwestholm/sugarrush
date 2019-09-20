@@ -1,14 +1,10 @@
-import sys
-import os
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
-
 from pysat.card import EncType
 
-from common.utils import power_set
-
-from sat.solver import SugarRush
-from sat.langford import langford, print_langford_solution
-from sat.parity_board import parity_board
+from utils import power_set
+from solver import SugarRush
+from examples.langford import langford, print_langford_solution
+from examples.parity_board import parity_board
+from examples.assignment import interval_selection
 
 def power_set_literals(lits):
     for subset in power_set(lits):
@@ -87,14 +83,26 @@ def disjunction_test():
     enumeration_test(solver, X)
     '''
 
+
+def assignment_test():
+    sequence = [1, 1, 1, 1, 0, 0]
+    feasible = lambda x: len(x) >= 2 and len(x) <= 5
+    coords = interval_selection(sequence, feasible)
+    for coord in coords:
+        print(coord)
+
 def main():
-    langford_test(20)
+    #langford_test(20)
 
     #negate_test()
 
     #disjunction_test()
 
     #parity_board()
+
+    #assignment_test()
+
+    pizza_test()
 
 if __name__ == '__main__':
     main()

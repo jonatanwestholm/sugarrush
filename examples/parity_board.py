@@ -1,5 +1,5 @@
 import numpy as np
-from sat.solver import SugarRush
+from solver import SugarRush
 
 def allowed_cards(solver, variables, cardinalities):
     cardinalities = [card for card in cardinalities if card <= len(variables)]

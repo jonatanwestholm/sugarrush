@@ -40,3 +40,18 @@ def print_langford_solution(solver, X):
     _, nums = zip(*sorted(position2num.items()))
     langford_str = ", ".join(map(str, nums))
     print(langford_str)
+
+def run_langford(n=4):
+    from sugarrush.solver import SugarRush
+    with SugarRush() as solver:
+        X = langford(solver, n)
+
+        print("n:", n)
+        solver.print_stats()
+
+        satisfiable = solver.solve()
+        print("Satisfiable:", satisfiable)
+        if not satisfiable:
+            return
+
+        print_langford_solution(solver, X)

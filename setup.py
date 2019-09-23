@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="sugarrush",
-    version="0.0.1",
+    version="0.0.3.dev1",
     author="Jonatan Westholm",
     author_email="jonatanwestholm@gmail.com",
     description="Quality-of-life and extra features for python-sat",

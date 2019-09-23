@@ -5,14 +5,16 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="sugarrush",
-    version="0.0.3.dev1",
+    version="0.0.3.dev2",
     author="Jonatan Westholm",
     author_email="jonatanwestholm@gmail.com",
     description="Quality-of-life and extra features for python-sat",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/jonatanwestholm/sugarrush",
-    packages=setuptools.find_packages(),
+    #packages=setuptools.find_packages(),
+    packages=['sugarrush', 'sugarrush.examples'],
+    package_dir={'sugarrush.examples': 'sugarrush/examples'},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

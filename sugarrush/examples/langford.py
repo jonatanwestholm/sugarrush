@@ -5,7 +5,6 @@ def langford(solver, n):
 
     for row in X:
         solver.add(solver.equals(row))
-        #solver.equals(row)
 
     position2covering = defaultdict(list)
     for k, row in enumerate(X):
@@ -15,7 +14,6 @@ def langford(solver, n):
 
     for lits in position2covering.values():
         solver.add(solver.equals(lits))
-        #solver.equals(lits)
 
     return X
 

@@ -43,13 +43,13 @@ def negate_test():
     solver.add(bound_X_neg)
     sum_test(solver, list(sorted(solver.lits - set([0]))))
     
-def disjunction_test():
+def run_disjunction():
     """
         CNF that is satisfiable if and only if the sum of the variables is even
         Created by transforming a set of sum({x})==k - CNF's into an equivalent CNF
         See: https://garageofcode.blogspot.com/2019/02/sat-parity-board.html
     """
-    print(disjunction_test.__doc__)
+    print(run_disjunction.__doc__)
     n = 9
     solver = SugarRush()
     X = [solver.var() for _ in range(n)]
@@ -76,4 +76,4 @@ def disjunction_test():
     '''
 
 if __name__ == '__main__':
-    disjunction_test()
+    run_disjunction()

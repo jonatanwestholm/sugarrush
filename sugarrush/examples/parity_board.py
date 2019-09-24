@@ -57,12 +57,12 @@ def parity_board_solve(board, num_moves):
 
     return dict((coord, solver.solution_value(tile)) for coord, tile in coord2tiles.items())
 
-def parity_board():
+def run_parity_board():
     """
         Puzzle from: https://tomas.rokicki.com/
         See model at: https://garageofcode.blogspot.com/2019/02/sat-parity-board.html
     """
-    print(parity_board.__doc__)
+    print(run_parity_board.__doc__)
     num_moves = 9
     board = [[1, 0, 1, 0, 1],
              [0, 0, 1, 1, 0],
@@ -95,7 +95,7 @@ def parity_board():
         print(", ".join([str(coord2val[(i, j)]) for j in range(M)]))
 
 if __name__ == '__main__':
-    parity_board()
+    run_parity_board()
 
     #print()
     #print("Verification:")

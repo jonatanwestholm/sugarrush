@@ -35,8 +35,8 @@ class SugarRush(Solver):
     def var(self):
         """
         """
-        self.lits.add(self.top_id() + 1)
-        return self.top_id()
+        self.lits.add(self._top_id() + 1)
+        return self._top_id()
 
     def add(self, cnf):
         """Should it warn if one tries to add 
@@ -54,7 +54,7 @@ class SugarRush(Solver):
     def add_lits_from(self, cnf):
         self.add_lits(flatten(cnf))
 
-    def top_id(self):
+    def _top_id(self):
         return max(self.lits)
 
     def _init_var2val(self):
@@ -93,7 +93,7 @@ class SugarRush(Solver):
         cnf = CardEnc.equals(lits=lits,
                              bound=bound,
                              encoding=encoding,
-                             top_id=self.top_id())
+                             top_id=self._top_id())
         clauses = cnf.clauses
         self.add_lits_from(clauses)
         return clauses
@@ -102,7 +102,7 @@ class SugarRush(Solver):
         cnf = CardEnc.atmost(lits=lits,
                              bound=bound,
                              encoding=encoding,
-                             top_id=self.top_id())
+                             top_id=self._top_id())
         clauses = cnf.clauses
         self.add_lits_from(clauses)
         return clauses
@@ -113,7 +113,7 @@ class SugarRush(Solver):
         """Return negation of CNF
         """
         cnf = CNF(from_clauses=clauses)
-        neg = cnf.negate(topv=self.top_id())
+        neg = cnf.negate(topv=self._top_id())
         neg_clauses = neg.clauses
         self.add_lits_from(neg_clauses)
         #neg_force = [[-auxvar] for auxvar in neg.auxvars]

@@ -1,5 +1,6 @@
 import numpy as np
-from solver import SugarRush
+
+from sugarrush.solver import SugarRush
 
 def allowed_cards(solver, variables, cardinalities):
     cardinalities = [card for card in cardinalities if card <= len(variables)]
@@ -45,6 +46,11 @@ def parity_board_solve(board, num_moves):
     return dict((coord, solver.solution_value(tile)) for coord, tile in coord2tiles.items())
 
 def parity_board():
+    """
+        Puzzle from: https://tomas.rokicki.com/
+        See model at: https://garageofcode.blogspot.com/2019/02/sat-parity-board.html
+    """
+    print(parity_board.__doc__)
     num_moves = 9
     board = [[1, 0, 1, 0, 1],
              [0, 0, 1, 1, 0],
@@ -75,6 +81,9 @@ def parity_board():
     print("Solution:")
     for i in range(N):
         print(", ".join([str(coord2val[(i, j)]) for j in range(M)]))
+
+if __name__ == '__main__':
+    parity_board()
 
     #print()
     #print("Verification:")

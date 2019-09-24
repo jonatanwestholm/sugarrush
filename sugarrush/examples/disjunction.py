@@ -1,12 +1,9 @@
-from utils import power_set
-from solver import SugarRush
-from examples.langford import langford, print_langford_solution
-from examples.parity_board import parity_board
+from sugarrush.utils import power_set
+from sugarrush.solver import SugarRush
 
 def power_set_literals(lits):
     for subset in power_set(lits):
         yield [lit if lit in subset else -lit for lit in lits]
-        #yield [1 if lit in subset else 0 for lit in lits]
 
 def enumeration_test(solver, variables):
     satisfying_assignments = []
@@ -30,20 +27,6 @@ def enumeration_test(solver, variables):
     print(set([sum(lits) for lits in unsatisfying_assignments]))
     #[print(lits) for lits in sorted(unsatisfying_assignments)]
 
-def langford_test(n):
-    with SugarRush() as solver:
-        X = langford(solver, n)
-
-        print("n:", n)
-        solver.print_stats()
-
-        satisfiable = solver.solve()
-        print("Satisfiable:", satisfiable)
-        if not satisfiable:
-            return
-
-        print_langford_solution(solver, X)
-
 def negate_test():
     n = 3
     solver = SugarRush()
@@ -55,7 +38,13 @@ def negate_test():
     enumeration_test(solver, list(sorted(solver.lits - set([0]))))
     
 def disjunction_test():
-    n = 10
+    """
+        CNF that is satisfiable if and only if the sum of the variables is even
+        Created by transforming a set of sum({x})==k - CNF's into an equivalent CNF
+        See: https://garageofcode.blogspot.com/2019/02/sat-parity-board.html
+    """
+    print(disjunction_test.__doc__)
+    n = 9
     solver = SugarRush()
     X = [solver.var() for _ in range(n)]
 
@@ -80,14 +69,5 @@ def disjunction_test():
     enumeration_test(solver, X)
     '''
 
-def main():
-    #langford_test(20)
-
-    #negate_test()
-
-    #disjunction_test()
-
-    parity_board()
-
 if __name__ == '__main__':
-    main()
+    disjunction_test()

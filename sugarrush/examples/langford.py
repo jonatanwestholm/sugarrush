@@ -46,7 +46,7 @@ def print_langford_solution(solver, X):
 
 def run_langford(n=4):
     """
-        Solve and print a langford sequence of length n
+        Solve and print a langford sequence of length n.
         See: https://garageofcode.blogspot.com/2019/02/sat-langford-pairs.html
     """
     from sugarrush.solver import SugarRush

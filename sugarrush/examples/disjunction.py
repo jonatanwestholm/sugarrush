@@ -45,8 +45,8 @@ def negate_test():
     
 def run_disjunction():
     """
-        CNF that is satisfiable if and only if the sum of the variables is even
-        Created by transforming a set of sum({x})==k - CNF's into an equivalent CNF
+        CNF that is satisfiable if and only if the sum of the variables is even.
+        Created by transforming a set of sum({x})==k - CNF's into an equivalent CNF.
         See: https://garageofcode.blogspot.com/2019/02/sat-parity-board.html
     """
     print(run_disjunction.__doc__)

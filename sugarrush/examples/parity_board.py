@@ -3,11 +3,19 @@ import numpy as np
 from sugarrush.solver import SugarRush
 
 def allowed_cards(solver, variables, cardinalities):
+    """
+        Create a CNF that is satisfiable if and only if
+        the sum of the variables is among the given cardinalities.
+    """
     cardinalities = [card for card in cardinalities if card <= len(variables)]
     bounds = [solver.equals(variables, bound=card) for card in cardinalities]
     return solver.disjunction(bounds)
 
 def get_covering_vars(coord, coord2tiles):
+    """
+        Returns the 4-connected lattice neighbours for 
+        a given tile in a parity board.
+    """
     incident_tiles = []
     x, y = coord
     for dx, dy in [(0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)]:
@@ -17,6 +25,10 @@ def get_covering_vars(coord, coord2tiles):
     return incident_tiles
 
 def parity_board_solve(board, num_moves):
+    """
+        Given a parity board and an exact number of moves,
+        find the moves that make all tiles even, if they exist.
+    """
     solver = SugarRush()
 
     coord2tiles = dict((coord, solver.var()) 
@@ -87,6 +99,8 @@ if __name__ == '__main__':
 
     #print()
     #print("Verification:")
-    #coord2covering = dict((coord, get_covering_vars(coord, coord2val)) for coord in board_dict)
+    #coord2covering = dict((coord, get_covering_vars(coord, coord2val)) 
+    #                       for coord in board_dict)
     #for i in range(N):
-    #    print(", ".join([str((board_dict[(i, j)] + sum(coord2covering[(i, j)])) % 2) for j in range(M)]))
+    #    print(", ".join([str((board_dict[(i, j)] + sum(coord2covering[(i, j)])) % 2) 
+    #                            for j in range(M)]))

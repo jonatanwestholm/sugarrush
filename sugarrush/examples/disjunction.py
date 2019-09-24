@@ -2,10 +2,17 @@ from sugarrush.utils import power_set
 from sugarrush.solver import SugarRush
 
 def power_set_literals(lits):
+    """
+        For a set of literals, enumerate all true/false assignments
+    """
     for subset in power_set(lits):
         yield [lit if lit in subset else -lit for lit in lits]
 
-def enumeration_test(solver, variables):
+def sum_test(solver, variables):
+    """
+        For a set of variables, test all possible boolean assignments,
+        and check which of the sums can be found in satisfying assignments. 
+    """
     satisfying_assignments = []
     unsatisfying_assignments = []
     for lits in power_set_literals(variables):
@@ -34,8 +41,7 @@ def negate_test():
     bound_X = solver.atmost(X, bound=2)
     bound_X_neg = solver.negate(bound_X)
     solver.add(bound_X_neg)
-    #enumeration_test(solver, X)
-    enumeration_test(solver, list(sorted(solver.lits - set([0]))))
+    sum_test(solver, list(sorted(solver.lits - set([0]))))
     
 def disjunction_test():
     """
@@ -52,7 +58,7 @@ def disjunction_test():
     bound = solver.disjunction(bounds_even)
 
     solver.add(bound)
-    enumeration_test(solver, X)
+    sum_test(solver, X)
 
     ''' successful test
     bound_X_1 = solver.equals(X, bound=0)
@@ -66,7 +72,7 @@ def disjunction_test():
     print()
     solver.add(bound_X_1or2)
 
-    enumeration_test(solver, X)
+    sum_test(solver, X)
     '''
 
 if __name__ == '__main__':

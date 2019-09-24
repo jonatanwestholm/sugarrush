@@ -1,6 +1,11 @@
 from collections import defaultdict
 
 def langford(solver, n):
+    """
+        Create constraints for the length n langford sequence,
+        and add these to the solver.
+        Return the decision variables.
+    """
     X = [[solver.var() for _ in range(2*n - k - 2)] for k in range(n)]
 
     for row in X:

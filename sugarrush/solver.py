@@ -1,3 +1,21 @@
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+##
+## solver.py
+##
+##  Created on: Sep 24, 2019
+##      Author: Jonatan D. Westholm 
+##      E-mail: jonatanwestholm@gmail.com
+##
+
+"""
+    ===============
+    Module Details
+    ===============
+
+"""
+
+
 from pysat.solvers import Solver
 from pysat.card import CardEnc, EncType, ITotalizer
 from pysat.formula import CNF
@@ -11,21 +29,14 @@ class SugarRush(Solver):
     """
     def __init__(self, name="glucose4"):
         super().__init__(name=name)
-        #self.top_id = 0
         self.var2val = {}
         self.lits = set([0])
 
-    """
-    Basics
-    """
     def var(self):
         """
         """
         self.lits.add(self.top_id() + 1)
         return self.top_id()
-
-    #def add_clauses_from(self, cnf):
-    #    return self.append_formula(cnf)        
 
     def add(self, cnf):
         """Should it warn if one tries to add 
@@ -53,14 +64,20 @@ class SugarRush(Solver):
             self.var2val[var+1] = (val > 0) * 1 # 1-indexed
 
     def solution_value(self, var):
+        """Get solved value of 'var'. Must not be run before successful solve.
+        """
         if not self.var2val:
             self._init_var2val()
         return self.var2val[var]
 
     def solution_values(self, variables):
+        """List version of :meth:`solution_value`
+        """
         return [self.solution_value(var) for var in variables]
 
     def print_stats(self):
+        """Print number of variables and number of clauses used by the solver
+        """
         print("Nof variables:", self.nof_vars())
         print("Nof clauses:", self.nof_clauses())
 
@@ -93,6 +110,8 @@ class SugarRush(Solver):
         #return cnf.clauses
 
     def negate(self, clauses):
+        """Return negation of CNF
+        """
         cnf = CNF(from_clauses=clauses)
         neg = cnf.negate(topv=self.top_id())
         neg_clauses = neg.clauses

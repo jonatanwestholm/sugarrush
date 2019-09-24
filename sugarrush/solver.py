@@ -25,7 +25,19 @@ from sugarrush.utils import dbg
 
 
 class SugarRush(Solver):
-    """Quality-of-life wrapper for pysat.solvers.Solver
+    """
+        Quality-of-life wrapper for pysat.solvers.Solver
+
+        *   Does automatic bookkeeping of literals.
+        *   When calling constraint builders, new literals are assigned,
+            that do not interfere with existing literals. 
+        *   New literals can also be created and accessed by :meth:`var`.
+        *   After solving, the solution value for a given var, 
+            can be obtained by :meth:`solution_value`.
+        *   Constraint builders return CNF's, 
+            but do not add them automatically to the model.
+
+
     """
     def __init__(self, name="glucose4"):
         super().__init__(name=name)
@@ -34,62 +46,92 @@ class SugarRush(Solver):
 
     def var(self):
         """
+            **Added in SugarRush**\n
+            Return a new unused variable. 
         """
         self.lits.add(self._top_id() + 1)
         return self._top_id()
 
     def add(self, cnf):
-        """Should it warn if one tries to add 
-        clauses with variables that are not in self.lits?
+        """
+            **Added in SugarRush**\n
+            Add clauses from a CNF to the model.
         """
         self.append_formula(cnf)
 
-    def add_lits(self, lits):
-        """Should it warn if one tries to add lits 
-        which are already in self.lits?
+    def _add_lits(self, lits):
+        """
+            **Added in SugarRush**\n
+            Update the internal set of literals.
         """
         for lit in lits:
             self.lits.add(abs(lit))
 
-    def add_lits_from(self, cnf):
-        self.add_lits(flatten(cnf))
+    def _add_lits_from(self, cnf):
+        """
+            **Added in SugarRush**\n
+            Update the internal set of literals from a CNF.
+        """
+        self._add_lits(flatten(cnf))
 
     def _top_id(self):
+        """
+            **Added in SugarRush**\n
+            Return the largest valued literal in use by the model.
+        """
         return max(self.lits)
 
     def _init_var2val(self):
-        """When is this necessary?
+        """
+            **Added in SugarRush**\n
+            Initialize a mapping to the solved values. The mapping 
+            is such that **var2val[var]** has the same boolean value as 
+            :param:`var` in the satisfying assignment.
         """
         for var, val in enumerate(self.get_model()):
             self.var2val[var+1] = (val > 0) * 1 # 1-indexed
 
     def solution_value(self, var):
-        """Get solved value of 'var'. Must not be run before successful solve.
+        """
+            **Added in SugarRush**\n
+            Get solved value of :param:`var`. Must not be run before successful solve.
         """
         if not self.var2val:
             self._init_var2val()
         return self.var2val[var]
 
     def solution_values(self, variables):
-        """List version of :meth:`solution_value`
+        """
+            **Added in SugarRush**\n
+            List version of :meth:`solution_value`.
         """
         return [self.solution_value(var) for var in variables]
 
     def print_stats(self):
-        """Print number of variables and number of clauses used by the solver
+        """
+            **Added in SugarRush**\n
+            Print number of variables and number of clauses used by the solver.
         """
         print("Nof variables:", self.nof_vars())
         print("Nof clauses:", self.nof_clauses())
 
     def print_values(self):
+        """
+            **Added in SugarRush**\n
+            Print full mapping from vars to boolean values
+        """
         for var, val in sorted(self.var2val.items()):
             print("{}: {}".format(var, val))
-
 
     """
     Constructs
     """
     def equals(self, lits, bound=1, encoding=EncType.seqcounter):
+        """
+            **Added in SugarRush**\n
+            Uses :meth:`pysat.card.CardEnc.equals`.
+            Adds automatic bookkeeping of literals.
+        """
         cnf = CardEnc.equals(lits=lits,
                              bound=bound,
                              encoding=encoding,
@@ -99,6 +141,11 @@ class SugarRush(Solver):
         return clauses
 
     def atmost(self, lits, bound=1, encoding=EncType.seqcounter):
+        """
+            **Added in SugarRush**\n
+            Uses :meth:`pysat.card.CardEnc.atmost`.
+            Adds automatic bookkeeping of literals.
+        """
         cnf = CardEnc.atmost(lits=lits,
                              bound=bound,
                              encoding=encoding,
@@ -110,7 +157,10 @@ class SugarRush(Solver):
         #return cnf.clauses
 
     def negate(self, clauses):
-        """Return negation of CNF
+        """
+            **Added in SugarRush**\n
+            Uses :meth:`pysat.formula.CNF.negate`.
+            Adds automatic bookkeeping of literals.
         """
         cnf = CNF(from_clauses=clauses)
         neg = cnf.negate(topv=self._top_id())
@@ -124,6 +174,12 @@ class SugarRush(Solver):
         return neg_clauses
 
     def indicator(self, clauses):
+        """
+            **Added in SugarRush**\n
+            Uses Tseytin transformation to create a variable that has the 
+            same boolean value as a CNF.
+            Does automatic bookkeeping of literals.
+        """
         p = self.var()
         right_imp = [clause + [-p] for clause in clauses]
         left_imp = [[-lit for lit in flatten(clauses)] + [p]]
@@ -131,6 +187,12 @@ class SugarRush(Solver):
         return p, equiv
 
     def disjunction(self, cnfs):
+        """
+            **Added in SugarRush**\n
+            Uses :meth:`indicator` to create a CNF that has the same boolean value
+            as the disjunction of a given set of CNF's. 
+            Does automatic bookkeeping of literals.
+        """
         inds = []
         clauses = []
         for cnf in cnfs:
@@ -141,6 +203,11 @@ class SugarRush(Solver):
         return clauses
 
     def itotalizer(self, lits, ubound=None):
+        """
+            **Added in SugarRush**\n
+            Uses :meth:`pysat.card.ITotalizer`.
+            Adds automatic bookkeeping of literals.
+        """
         if ubound is None:
             ubound = len(lits)
         itot = ITotalizer(lits, ubound)
@@ -151,11 +218,9 @@ class SugarRush(Solver):
 
     def optimize(self, itot, debug=False):
         """
-        Performs binary search
-        It is assumed that
-            i < j -> satisfiable(i) <= satisfiable(j)
-        Where
-            satisfiable(i) = self.solve(assumptions=[-i])
+            **Added in SugarRush**\n
+            Uses binary search to find the smallest satisfiable value for the ITotalizer.
+            Assumes that satisfiability is monotonically increasing.
         """
         upper = len(itot) - 1 # smallest known to be feasible
         lower = 0 # largest known to be infeasible (after initial check)

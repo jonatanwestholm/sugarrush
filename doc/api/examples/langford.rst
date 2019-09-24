@@ -1,5 +1,5 @@
 Langford Solver (:mod:`sugarrush.examples.langford`)
-=======================================
+====================================================
 
 .. automodule:: sugarrush.examples.langford
     :inherited-members:

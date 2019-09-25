@@ -56,7 +56,44 @@ class SugarRush(Solver):
         """
             **Added in SugarRush**\n
             If c is iterable of iterable of ints, then interpret as CNF.
-            If c is iterable of ints, then interpet as single clause.
+            If c is iterable of ints (simple list of literals), 
+            then interpet as single clause.\n
+            Simple list of literals:
+
+            .. code-block:: python
+
+                >>> from sugarrush.solver import SugarRush
+                >>> with SugarRush() as solver:
+                        X = [solver.var() for _ in range(6)]
+                        solver.add(X)
+                        solver.solve()
+                        print(solver.solution_values(X))
+                [1, 0, 0, 0, 0, 0]
+
+            List of list of literals:
+
+            .. code-block:: python
+
+                >>> from sugarrush.solver import SugarRush
+                >>> with SugarRush() as solver:
+                         X = [solver.var() for _ in range(6)]
+                        solver.add([X])
+                        solver.solve()
+                        print(solver.solution_values(X))
+                [1, 0, 0, 0, 0, 0]
+
+            Normal CNF:
+
+            .. code-block:: python
+
+                >>> from sugarrush.solver import SugarRush
+                >>> with SugarRush() as solver:
+                        X = [solver.var() for _ in range(6)]
+                        solver.add([X[:3], X[3:]])
+                        solver.solve()
+                        print(solver.solution_values(X))
+                [1, 0, 0, 1, 0, 0]
+
         """
         for elem in c:
             try:

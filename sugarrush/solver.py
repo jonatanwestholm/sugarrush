@@ -52,13 +52,28 @@ class SugarRush(Solver):
         self.lits.add(self._top_id() + 1)
         return self._top_id()
 
-    def add(self, cnf):
+    def add(self, c):
         """
             **Added in SugarRush**\n
-            Add clauses from a CNF to the model.
+            If c is iterable of iterable of ints, then interpret as CNF.
+            If c is iterable of ints, then interpet as single clause.
         """
-        self._add_lits_from(cnf)
-        self.append_formula(cnf)
+        for elem in c:
+            try:
+                iter(elem)
+            except TypeError:
+                self._add(c) # c is list of ints
+                break
+            self._add(*c) # c is list of lists of ints
+            break
+
+    def _add(self, *clauses):
+        for clause in clauses:
+            self._add_clause(clause)
+
+    def _add_clause(self, clause):
+        self._add_lits(clause)
+        self.add_clause(clause)
 
     def _add_lits(self, lits):
         """

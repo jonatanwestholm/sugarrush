@@ -1,11 +1,13 @@
 import setuptools
 
+import sugarrush
+
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="sugarrush",
-    version="0.0.3.dev2",
+    version=sugarrush.__version__,
     author="Jonatan Westholm",
     author_email="jonatanwestholm@gmail.com",
     description="Quality-of-life and extra features for python-sat",

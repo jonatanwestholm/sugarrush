@@ -227,16 +227,18 @@ class SugarRush(Solver):
         #self.add([neg.auxvars])
         return neg_clauses
 
-    def indicator(self, clauses):
+    def indicator(self, cnf):
         """
             **Added in SugarRush**\n
             Uses Tseytin transformation to create a variable that has the 
-            same boolean value as a CNF.
+            same boolean value as the given CNF.
             Does automatic bookkeeping of literals.
+
+            Return indicator variable, and the equivalence clauses
         """
         p = self.var()
-        right_imp = [clause + [-p] for clause in clauses]
-        left_imp = [[-lit for lit in flatten(clauses)] + [p]]
+        right_imp = [clause + [-p] for clause in cnf]
+        left_imp = [[-lit for lit in flatten(cnf)] + [p]]
         equiv = left_imp + right_imp
         return p, equiv
 

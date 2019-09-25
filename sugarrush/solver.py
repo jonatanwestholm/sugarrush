@@ -57,6 +57,7 @@ class SugarRush(Solver):
             **Added in SugarRush**\n
             Add clauses from a CNF to the model.
         """
+        self._add_lits_from(cnf)
         self.append_formula(cnf)
 
     def _add_lits(self, lits):
@@ -88,13 +89,14 @@ class SugarRush(Solver):
             is such that **var2val[var]** has the same boolean value as 
             :param:`var` in the satisfying assignment.
         """
-        for var, val in enumerate(self.get_model()):
-            self.var2val[var+1] = (val > 0) * 1 # 1-indexed
+        for val in self.get_model():
+            if abs(val) in self.lits:
+                self.var2val[abs(val)] = (val > 0) * 1 # 1-indexed
 
     def solution_value(self, var):
         """
             **Added in SugarRush**\n
-            Get solved value of :param:`var`. Must not be run before successful solve.
+            Get solved value of **var**. Must not be run before successful solve.
         """
         if not self.var2val:
             self._init_var2val()

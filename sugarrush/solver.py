@@ -191,7 +191,7 @@ class SugarRush(Solver):
                              encoding=encoding,
                              top_id=self._top_id())
         clauses = cnf.clauses
-        self.add_lits_from(clauses)
+        self._add_lits_from(clauses)
         return clauses
 
     def atmost(self, lits, bound=1, encoding=EncType.seqcounter):
@@ -205,7 +205,7 @@ class SugarRush(Solver):
                              encoding=encoding,
                              top_id=self._top_id())
         clauses = cnf.clauses
-        self.add_lits_from(clauses)
+        self._add_lits_from(clauses)
         return clauses
         #self.add(clauses)
         #return cnf.clauses
@@ -219,7 +219,7 @@ class SugarRush(Solver):
         cnf = CNF(from_clauses=clauses)
         neg = cnf.negate(topv=self._top_id())
         neg_clauses = neg.clauses
-        self.add_lits_from(neg_clauses)
+        self._add_lits_from(neg_clauses)
         #neg_force = [[-auxvar] for auxvar in neg.auxvars]
         #print(neg_force)
         #self.add(neg_force)
@@ -269,7 +269,7 @@ class SugarRush(Solver):
         itot = ITotalizer(lits, ubound)
         clauses = itot.cnf.clauses
         bound_vars = itot.rhs
-        self.add_lits_from(clauses)
+        self._add_lits_from(clauses)
         return clauses, bound_vars
 
     def optimize(self, itot, debug=False):

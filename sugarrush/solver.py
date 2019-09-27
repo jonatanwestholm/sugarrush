@@ -233,14 +233,42 @@ class SugarRush(Solver):
             Uses Tseytin transformation to create a variable that has the 
             same boolean value as the given CNF.
             Does automatic bookkeeping of literals.
+            Creates len(cnf) + 1 new variables
 
             Return indicator variable, and the equivalence clauses
         """
+        indicators = []
+        clauses = []
+        for clause in cnf:
+            p, equivalence = self.indicate_disjunction(clause)
+            indicators.append(p)
+            clauses.extend(equivalence)
+
+        p, equivalence = self.indicate_conjunction(indicators)
+        clauses.extend(equivalence)
+        return p, clauses
+
+    def indicate_disjunction(self, clause):
+        """
+            **Added in SugarRush**\n
+            p <=> (c1 OR c2 OR ... OR cn)
+        """
         p = self.var()
-        right_imp = [clause + [-p] for clause in cnf]
-        left_imp = [[-lit for lit in flatten(cnf)] + [p]]
-        equiv = left_imp + right_imp
-        return p, equiv
+        right_imp = [clause + [-p]] # p => (c1 OR c2 OR ... OR cn)
+        left_imp = [[-c, p] for c in clause] # (c1 OR c2 OR ... OR cn) => p
+        equivalence = right_imp + left_imp
+        return p, equivalence
+
+    def indicate_conjunction(self, clause):
+        """
+            **Added in SugarRush**\n
+            p <=> (c1 AND c2 AND ... AND cn)
+        """
+        p = self.var()
+        right_imp = [[-p, c] for c in clause] # p => (c1 AND c2 AND ... AND cn)
+        left_imp = [[-c for c in clause] + [p]] # (c1 AND c2 AND ... AND cn) => p
+        equivalence = right_imp + left_imp
+        return p, equivalence
 
     def disjunction(self, cnfs):
         """
@@ -281,12 +309,15 @@ class SugarRush(Solver):
             raise Exception("Unknown search method!")
 
     def optimize_linear(self, itot):
+        self.print_stats()
         ub = len(itot) - 1
         if not self.solve(assumptions=[-itot[ub]]):
             return None
         ub -= 1
         while ub >= 0:
+            print("ub:", ub)
             if not self.solve(assumptions=[-itot[ub]]):
+                print("returning:", ub + 1)
                 return ub + 1
             else:
                 ub -= 1

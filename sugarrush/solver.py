@@ -272,7 +272,27 @@ class SugarRush(Solver):
         self._add_lits_from(clauses)
         return clauses, bound_vars
 
-    def optimize(self, itot, debug=False):
+    def optimize(self, itot, search="linear"):
+        if search == "linear":
+            return self.optimize_linear(itot)
+        elif search == "binary":
+            return self.optimize_binary(itot)
+        else:
+            raise Exception("Unknown search method!")
+
+    def optimize_linear(self, itot):
+        ub = len(itot) - 1
+        if not self.solve(assumptions=[-itot[ub]]):
+            return None
+        ub -= 1
+        while ub >= 0:
+            if not self.solve(assumptions=[-itot[ub]]):
+                return ub + 1
+            else:
+                ub -= 1
+        return 0
+
+    def optimize_binary(self, itot, debug=False):
         """
             **Added in SugarRush**\n
             Uses binary search to find the smallest satisfiable value for the ITotalizer.

@@ -145,13 +145,24 @@ class SugarRush(Solver):
             if abs(val) in self.lits:
                 self.var2val[abs(val)] = (val > 0) * 1 # 1-indexed
 
+    def solve(self, assumptions=[]):
+        ret = super().solve(assumptions)
+        self.solver_called = True
+        return ret
+
     def solution_value(self, var):
         """
             **Added in SugarRush**\n
             Get solved value of **var**. Must not be run before successful solve.
         """
-        if not self.var2val:
+        try:
+            _ = self.solver_called
+        except AttributeError:
+            raise TypeError("Solver.solution_value() called before model solved")
+            
+        if (not self.var2val) or self.solver_called:
             self._init_var2val()
+            solver_recalled = False
         return self.var2val[var]
 
     def solution_values(self, variables):

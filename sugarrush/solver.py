@@ -145,8 +145,8 @@ class SugarRush(Solver):
             if abs(val) in self.lits:
                 self.var2val[abs(val)] = (val > 0) * 1 # 1-indexed
 
-    def solve(self, assumptions=[]):
-        ret = super().solve(assumptions)
+    def solve(self, **kwargs):
+        ret = super().solve(**kwargs)
         self.solver_called = True
         return ret
 
@@ -237,6 +237,38 @@ class SugarRush(Solver):
         #print(neg.auxvars)
         #self.add([neg.auxvars])
         return neg_clauses
+
+    def xor(self, x1, x2):
+        """
+            **Added in SugarRush**\n
+            Returns an indicator t <=> xor(x1, x2),
+            and clauses.
+            Adds automatic bookkeeping of literals.
+        """
+
+        t = self.var()
+        clauses = [[-t, x1, x2], [-t, -x1, -x2], [t, x1, -x2], [t, -x1, x2]]
+        return t, clauses
+
+    def parity(self, X):
+        """
+            **Added in SugarRush**\n
+            Returns an indicator t, for whether the 
+            sum of X is even (t=0) or odd (t=1).
+            Adds automatic bookkeeping of literals.
+        """
+
+        if len(X) == 0:
+            raise ValueError("Cannot take parity of zero variables")
+
+        clauses = []
+        t = X[0]
+
+        for x in X[1:]:
+            t, c = self.xor(x, t)
+            clauses.extend(c)
+
+        return t, clauses
 
     def indicator(self, cnf):
         """

@@ -56,8 +56,16 @@ def run_disjunction():
 
     bounds_even = [solver.equals(X, k) for k in range(0, n+1, 2)]
     bound = solver.disjunction(bounds_even)
-
     solver.add(bound)
+
+    """
+    # it is much smarter to do parity with a special method
+    t, parity_clauses = solver.parity(X)
+    solver.add(parity_clauses)
+    solver.add([-t])
+    """
+
+    solver.print_stats()
     sum_test(solver, X)
 
     ''' successful test

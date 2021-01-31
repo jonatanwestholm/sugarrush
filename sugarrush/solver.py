@@ -163,7 +163,11 @@ class SugarRush(Solver):
         if (not self.var2val) or self.solver_called:
             self._init_var2val()
             solver_recalled = False
-        return self.var2val[var]
+    
+        if var not in self.var2val:
+            return 0
+        else:
+            return self.var2val[var]
 
     def solution_values(self, variables):
         """

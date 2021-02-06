@@ -52,7 +52,7 @@ def less_test():
     a = [solver.var() for _ in range(N)]
     b = [solver.var() for _ in range(N)]    
 
-    t, cnf = solver.less(a, b, strict=True)
+    t, cnf = solver.less(a, b)
     solver.add(cnf)
     solver.add([t])
 
@@ -62,8 +62,11 @@ def less_test():
             b_assumptions = to_binary(N, j, b)
             satisfiable = solver.solve(assumptions = a_assumptions + b_assumptions)
             if satisfiable and (i >= j):
-                print(FAIL + "less_test error:", i, j, ENDC)
+                print(FAIL + "less_test false positive:", i, j, ENDC)
                 break
+            if (not satisfiable) and (i < j):
+                print(FAIL + "less_test false negative:", i, j, ENDC)
+                break                
         else:
             continue
         break
@@ -79,7 +82,7 @@ def leq_test():
     a = [solver.var() for _ in range(N)]
     b = [solver.var() for _ in range(N)]    
 
-    t, cnf = solver.less(a, b, strict=False)
+    t, cnf = solver.leq(a, b)
     solver.add(cnf)
     solver.add([t])
 
@@ -89,7 +92,10 @@ def leq_test():
             b_assumptions = to_binary(N, j, b)
             satisfiable = solver.solve(assumptions = a_assumptions + b_assumptions)
             if satisfiable and (i > j):
-                print(FAIL + "leq_test error:", i, j, ENDC)
+                print(FAIL + "leq_test false positive:", i, j, ENDC)
+                break
+            if (not satisfiable) and (i <= j):
+                print(FAIL + "leq_test false negative:", i, j, ENDC)
                 break
         else:
             continue

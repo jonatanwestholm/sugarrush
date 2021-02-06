@@ -274,7 +274,13 @@ class SugarRush(Solver):
 
         return t, clauses
 
-    def less(solver, a, b, strict):
+    def less(self, a, b):
+        return self.less_(a, b, strict=True)
+
+    def leq(self, a, b):
+        return self.less_(a, b, strict=False)
+
+    def less_(self, a, b, strict):
         """
             **Added in SugarRush**\n
             Return indicator and constraints for a less than b.
@@ -298,12 +304,12 @@ class SugarRush(Solver):
                 already_smaller = [[-ai], [bi]]
             else:
                 already_smaller = [[ti_1, -ai], [ti_1, bi]]
-            ti, ti_bind = solver.indicator(already_smaller)
+            ti, ti_bind = self.indicator(already_smaller)
             cnf.extend(ti_bind)
             if iteration is last_iteration and strict:
                 pass
             elif iteration is last_iteration and not strict:
-                ti, ti_bind = solver.indicator([[ti, -ai, bi]])
+                ti, ti_bind = self.indicator([[ti, -ai, bi]])
                 cnf.extend(ti_bind)
             else:
                 cnf.append([ti, -ai, bi]) # ti OR (ai <= bi) == (ti OR !ai OR bi)

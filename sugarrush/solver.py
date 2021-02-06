@@ -373,6 +373,8 @@ class SugarRush(Solver):
             **Added in SugarRush**\n
             p <=> (c1 OR c2 OR ... OR cn)
         """
+        if len(clause) == 1:
+            return clause[0], []
         p = self.var()
         right_imp = [clause + [-p]] # p => (c1 OR c2 OR ... OR cn)
         left_imp = [[-c, p] for c in clause] # (c1 OR c2 OR ... OR cn) => p

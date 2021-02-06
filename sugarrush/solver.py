@@ -162,7 +162,7 @@ class SugarRush(Solver):
             
         if (not self.var2val) or self.solver_called:
             self._init_var2val()
-            solver_recalled = False
+            self.solver_called = False
     
         if var not in self.var2val:
             return 0
@@ -273,6 +273,73 @@ class SugarRush(Solver):
             clauses.extend(c)
 
         return t, clauses
+
+    def less(solver, a, b, strict):
+        """
+            **Added in SugarRush**\n
+            Return indicator and constraints for a less than b.
+            if strict: a < b
+            if not strict: a <= b
+            Adds automatic bookkeeping of literals.
+        """
+
+        assert len(a) == len(b)
+        last_iteration = len(a) - 1
+
+        cnf = []
+        ti_1 = None # t(i - 1)
+        for iteration, (ai, bi) in enumerate(zip(a, b)):
+            # The t's indicate that given the current assumptions
+            #  about the literals, the constraint is already fulilled.
+            # If ti becomes true anywhere,
+            #  then this will propagate to all subsequent clauses,
+            #  and pop them.
+            if ti_1 is None:
+                already_smaller = [[-ai], [bi]]
+            else:
+                already_smaller = [[ti_1, -ai], [ti_1, bi]]
+            ti, ti_bind = solver.indicator(already_smaller)
+            cnf.extend(ti_bind)
+            if iteration is last_iteration and strict:
+                pass
+            elif iteration is last_iteration and not strict:
+                ti, ti_bind = solver.indicator([[ti, -ai, bi]])
+                cnf.extend(ti_bind)
+            else:
+                cnf.append([ti, -ai, bi]) # ti OR (ai <= bi) == (ti OR !ai OR bi)
+                ti_1 = ti
+        return ti, cnf
+
+    def plus(solver, a, b, z):
+        """
+            **Added in SugarRush**\n
+            Constrains 
+            z = (a + b) % 2**N
+            N == len(a) == len(b) == len(z)
+
+            In other words, uintN addition.
+            The leftmost bit is assumed to be the highest bit.
+        """
+
+        assert len(a) == len(b) == len(z)
+
+        cnf = []
+        carry = None
+        for ap, bp, zp in zip(a[::-1], b[::-1], z[::-1]):
+            if carry is None:
+                t, t_bind = solver.parity([ap, bp])
+                carry = solver.var()
+                cnf.extend([[-carry, ap], [-carry, bp], [carry, -ap, -bp]]) # carry == ap AND bp
+            else:
+                t, t_bind = solver.parity([ap, bp, carry])
+                carry_1 = solver.var()
+                cnf.extend([[carry_1, -ap, -bp], [carry_1, -ap, -carry], [carry_1, -bp, -carry], 
+                            [-carry_1, ap,  bp], [-carry_1, ap,  carry], [-carry_1, bp,  carry]]) 
+                # carry_1 == (ap + bp + carry >= 2)
+                carry = carry_1
+            cnf.extend(t_bind)
+            cnf.extend([[zp, -t], [-zp, t]]) # zp == t
+        return cnf
 
     def indicator(self, cnf):
         """

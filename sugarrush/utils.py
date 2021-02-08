@@ -7,6 +7,12 @@ def flatten_simple(lst):
     return [elem for sublist in lst for elem in sublist]
 
 
+def a_eq_i(a, i):
+    N = len(a)
+    b = "{1:0{0:d}b}".format(N, i)
+    return [ap if bp == '1' else -ap for bp, ap in zip(b, a)] 
+
+
 def power_set(a):
     """
     Takes lists only

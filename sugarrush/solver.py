@@ -21,7 +21,7 @@ from pysat.card import CardEnc, EncType, ITotalizer
 from pysat.formula import CNF
 
 from sugarrush.utils import flatten_simple as flatten
-from sugarrush.utils import dbg
+from sugarrush.utils import dbg, a_eq_i
 
 
 class SugarRush(Solver):
@@ -316,9 +316,54 @@ class SugarRush(Solver):
                 ti_1 = ti
         return ti, cnf
 
-    def plus(solver, a, b, z):
+    def plus(self, a, b, z):
         """
             **Added in SugarRush**\n
+            Constrains 
+            z = (a + b) % 2**N
+            N == len(a) == len(b) == len(z)
+            for the inputs that are binary vectors, 
+            integer inputs are converted to binary vectors.
+
+            In other words, uintN addition.
+            The leftmost bit is assumed to be the highest bit.
+        """
+
+        def is_iter(x):
+            try:
+                len(x)
+                return True
+            except TypeError:
+                return False
+
+        if is_iter(a):
+            N = len(a)
+        elif is_iter(b):
+            N = len(b)
+        else:
+            N = len(z)
+
+        cnf = []
+        def make_vec(x):
+            if is_iter(x):
+                return x 
+            else:
+                i = x
+                x = [self.var() for _ in range(N)]
+                cnf.extend([[xi] for xi in a_eq_i(x, i)])
+                return x
+
+        a = make_vec(a)
+        b = make_vec(b)
+        z = make_vec(z)
+        assert len(a) == len(b) == len(z)
+
+        return cnf + self.plus_(a, b, z)
+
+    def plus_(self, a, b, z):
+        """
+            **Added in SugarRush**\n
+            Internal method
             Constrains 
             z = (a + b) % 2**N
             N == len(a) == len(b) == len(z)
@@ -327,24 +372,51 @@ class SugarRush(Solver):
             The leftmost bit is assumed to be the highest bit.
         """
 
-        assert len(a) == len(b) == len(z)
 
         cnf = []
         carry = None
         for ap, bp, zp in zip(a[::-1], b[::-1], z[::-1]):
             if carry is None:
-                t, t_bind = solver.parity([ap, bp])
-                carry = solver.var()
+                t, t_bind = self.parity([ap, bp])
+                carry = self.var()
                 cnf.extend([[-carry, ap], [-carry, bp], [carry, -ap, -bp]]) # carry == ap AND bp
             else:
-                t, t_bind = solver.parity([ap, bp, carry])
-                carry_1 = solver.var()
+                t, t_bind = self.parity([ap, bp, carry])
+                carry_1 = self.var()
                 cnf.extend([[carry_1, -ap, -bp], [carry_1, -ap, -carry], [carry_1, -bp, -carry], 
                             [-carry_1, ap,  bp], [-carry_1, ap,  carry], [-carry_1, bp,  carry]]) 
                 # carry_1 == (ap + bp + carry >= 2)
                 carry = carry_1
             cnf.extend(t_bind)
             cnf.extend([[zp, -t], [-zp, t]]) # zp == t
+        return cnf
+
+    def element(self, v, a, z):
+        """Constrain
+        
+        z = v[a]
+
+        where a is uintK,
+        z is uintN,
+        v is a vector of at most 2**K uintN
+        """
+
+        assert len(v) <= 2**len(a)
+        assert all([len(vi) == len(z) for vi in v])
+
+        K = len(a)
+        def a_eq_i(a, i):
+            b = "{1:0{0:d}b}".format(K, i)
+            return [[ai] if bi == '1' else [-ai] for ai, bi in zip(a, b)]
+
+        cnf = []
+        for i, vi in enumerate(v):
+            a_eq_i_clauses = a_eq_i(a, i)
+            ti, ti_bind = self.indicator(a_eq_i_clauses)
+            cnf.extend(ti_bind)
+            for vij, zj in zip(vi, z):
+                # if ti is true then vij == zj
+                cnf.extend([[-ti, -vij, zj], [-ti, vij, -zj]])
         return cnf
 
     def indicator(self, cnf):

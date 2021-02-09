@@ -397,7 +397,7 @@ class SugarRush(Solver):
         except TypeError:
             # the given a is an integer
             i = a
-            assert i < len(v)
+            assert i < len(v), "list index out of range"
             K = 0
             while 2**K < len(v):
                 K += 1

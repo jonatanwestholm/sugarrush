@@ -350,7 +350,7 @@ class SugarRush(Solver):
             else:
                 i = x
                 x = [self.var() for _ in range(N)]
-                cnf.extend([[xi] for xi in a_eq_i(x, i)])
+                cnf.extend(a_eq_i(x, i))
                 return x
 
         a = make_vec(a)
@@ -372,7 +372,6 @@ class SugarRush(Solver):
             The leftmost bit is assumed to be the highest bit.
         """
 
-
         cnf = []
         carry = None
         for ap, bp, zp in zip(a[::-1], b[::-1], z[::-1]):
@@ -392,6 +391,22 @@ class SugarRush(Solver):
         return cnf
 
     def element(self, v, a, z):
+        cnf = []
+        try:
+            K = len(a)
+        except TypeError:
+            # the given a is an integer
+            i = a
+            assert i < len(v)
+            K = 0
+            while 2**K < len(v):
+                K += 1
+            a = [self.var() for _ in range(K)]
+            cnf.extend(a_eq_i(a, i))
+
+        return cnf + self.element_(v, a, z)
+
+    def element_(self, v, a, z):
         """Constrain
         
         z = v[a]
@@ -403,11 +418,6 @@ class SugarRush(Solver):
 
         assert len(v) <= 2**len(a)
         assert all([len(vi) == len(z) for vi in v])
-
-        K = len(a)
-        def a_eq_i(a, i):
-            b = "{1:0{0:d}b}".format(K, i)
-            return [[ai] if bi == '1' else [-ai] for ai, bi in zip(a, b)]
 
         cnf = []
         for i, vi in enumerate(v):

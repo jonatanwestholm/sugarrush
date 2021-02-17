@@ -13,6 +13,14 @@ def a_eq_i(a, i):
     return [[ap] if bp == '1' else [-ap] for bp, ap in zip(b, a)] 
 
 
+def is_iter(x):
+    try:
+        len(x)
+        return True
+    except TypeError:
+        return False
+
+
 def power_set(a):
     """
     Takes lists only

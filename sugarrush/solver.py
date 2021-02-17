@@ -21,7 +21,7 @@ from pysat.card import CardEnc, EncType, ITotalizer
 from pysat.formula import CNF
 
 from sugarrush.utils import flatten_simple as flatten
-from sugarrush.utils import dbg, a_eq_i
+from sugarrush.utils import dbg, a_eq_i, is_iter
 
 
 class SugarRush(Solver):
@@ -242,6 +242,19 @@ class SugarRush(Solver):
         #self.add([neg.auxvars])
         return neg_clauses
 
+    def int2binvec(solver, x, N):
+        """
+            **Added in SugarRush**\n
+            Given an integer, return an N-length binary vector 
+            and clauses equal to that integer.
+        """
+        if is_iter(x):
+            return x, []
+        else:
+            i = x
+            x = [solver.var() for _ in range(N)]
+            return x, a_eq_i(x, i)
+
     def xor(self, x1, x2):
         """
             **Added in SugarRush**\n
@@ -289,6 +302,15 @@ class SugarRush(Solver):
             Adds automatic bookkeeping of literals.
         """
 
+        if is_iter(a):
+            N = len(a)
+        else:
+            N = len(b) # b better be iterable then
+
+        a, cnfa = self.int2binvec(a, N)
+        b, cnfb = self.int2binvec(b, N)
+        cnf = cnfa + cnfb
+
         assert len(a) == len(b)
         last_iteration = len(a) - 1
 
@@ -329,13 +351,6 @@ class SugarRush(Solver):
             The leftmost bit is assumed to be the highest bit.
         """
 
-        def is_iter(x):
-            try:
-                len(x)
-                return True
-            except TypeError:
-                return False
-
         if is_iter(a):
             N = len(a)
         elif is_iter(b):
@@ -343,20 +358,11 @@ class SugarRush(Solver):
         else:
             N = len(z)
 
-        cnf = []
-        def make_vec(x):
-            if is_iter(x):
-                return x 
-            else:
-                i = x
-                x = [self.var() for _ in range(N)]
-                cnf.extend(a_eq_i(x, i))
-                return x
-
-        a = make_vec(a)
-        b = make_vec(b)
-        z = make_vec(z)
+        a, cnfa = self.int2binvec(a, N)
+        b, cnfb = self.int2binvec(b, N)
+        z, cnfz = self.int2binvec(z, N)
         assert len(a) == len(b) == len(z)
+        cnf = cnfa + cnfb + cnfz
 
         return cnf + self.plus_(a, b, z)
 

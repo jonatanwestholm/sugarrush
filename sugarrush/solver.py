@@ -309,12 +309,12 @@ class SugarRush(Solver):
 
         a, cnfa = self.int2binvec(a, N)
         b, cnfb = self.int2binvec(b, N)
+        print(cnfa, cnfb)
         cnf = cnfa + cnfb
 
         assert len(a) == len(b)
         last_iteration = len(a) - 1
 
-        cnf = []
         ti_1 = None # t(i - 1)
         for iteration, (ai, bi) in enumerate(zip(a, b)):
             # The t's indicate that given the current assumptions
